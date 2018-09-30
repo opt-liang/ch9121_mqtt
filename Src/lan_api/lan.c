@@ -212,7 +212,7 @@ bool CheckCh9121ConfigMsg( void ){
             uint32_t lan_dhcp = 0x01;
             uint32_t lan_timeout = 0x00;
             uint32_t lan_port = 1885;
-            uint32_t lan_ip = transformatIP( "39.108.231.83" );
+            uint32_t lan_ip = transformatIP( "192.168.0.1" );
             if( set_key_value( "lan_baud", UINT32, ( uint8_t *)&lan_baud ) &&\
             set_key_value( "lan_packlen", UINT32, ( uint8_t *)&lan_packlen ) &&\
             set_key_value( "lan_serconf", UINT32, ( uint8_t *)&lan_serconf ) &&\
