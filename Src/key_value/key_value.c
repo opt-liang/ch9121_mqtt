@@ -5,7 +5,6 @@
 #include <stdbool.h>
 #include "key_value.h"
 #include <stdlib.h>
-#include "SEGGER_RTT.h"
 
 #define KEY_DEBUG 1
 
