@@ -196,7 +196,7 @@ bool CheckCh9121ConfigMsg( void ){
     uint32_t myset_port = 1885;
     set_key_value( "lan_port", UINT32, ( uint8_t *)&myset_port );
     
-    uint32_t lan_ip = transformatIP( "39.108.231.83" );
+    uint32_t lan_ip = transformatIP( "192.168.0.1" );
     if( lan_ip != 0 ){
         set_key_value( "lan_ip", UINT32, ( uint8_t *)&lan_ip );
         uint32_t LAN_CONFIG = 0;
