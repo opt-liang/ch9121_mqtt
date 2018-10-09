@@ -82,7 +82,7 @@ const uint8_t GetLanConfigCmd[ 8 ][ 5 ] = {\
 };
 
 bool GetLanRealParameter( uint8_t *lan_parameter ){
-
+    bool status = true;
     LanEnterConfig();
     
     uint8_t cycle_count = 0;
@@ -112,17 +112,16 @@ bool GetLanRealParameter( uint8_t *lan_parameter ){
             cycle_count ++;
             if( cycle_count >= 10 ){
                 LAN_INFO( "Get LAN PARAMETER TIMES EXCEED 5 times\r\n" );
-                return false;
+                status = false;
+                goto exit;
             }
             goto RESEND;
         }
     }
-
+    LAN_INFO( "GET LAN PARAMETER SUCCESSFUL\r\n" );    
+exit:
     LanExitConfig();
-    
-    LAN_INFO( "GET LAN PARAMETER SUCCESSFUL\r\n" );
-
-    return true;
+    return status;
 }
 
 const uint8_t SetLanConfigCmd[ 9 ][ 5 ] = {\
@@ -138,7 +137,7 @@ const uint8_t SetLanConfigCmd[ 9 ][ 5 ] = {\
 };
 
 bool SetLanParameter( uint8_t *lan_flash_parameter ){
-    
+    bool status = true;
     LanEnterConfig();
     
     uint8_t cycle_count = 0;
@@ -180,80 +179,83 @@ bool SetLanParameter( uint8_t *lan_flash_parameter ){
             cycle_count ++;
             if( cycle_count >= 10 ){
                 LAN_INFO( "LAN SET PARAMETER TIMES EXCEED 5 times\r\n" );
-                return false;
+                status = false;
+                goto exit;
             }
             goto RESEND;
         }
     }
-    
+    LAN_INFO( "Set LAN PARAMETER SUCCESSFUL\r\n" );    
+exit:
     LanExitConfig();
-    
-    LAN_INFO( "Set LAN PARAMETER SUCCESSFUL\r\n" );
-    
-    return true;
+    return status;
 }
 
 bool CheckCh9121ConfigMsg( void ){
     
-    uint32_t myset_port = 1885;//211.115.110.85:5991
+    uint32_t myset_port = 1885;
     set_key_value( "lan_port", UINT32, ( uint8_t *)&myset_port );
     
-    uint32_t lan_ip = transformatIP( "192.168.0.1" );
-    set_key_value( "lan_ip", UINT32, ( uint8_t *)&lan_ip );
-
-    uint32_t LAN_CONFIG = 0;
-    if( !(get_key_value( "LAN_CONFIG", UINT32, (uint8_t *)(&LAN_CONFIG)) && LAN_CONFIG == __LAN_CONFIG__) ){
-        LAN_CONFIG = __LAN_CONFIG__;
-        if( set_key_value( "LAN_CONFIG", UINT32, (uint8_t *)(&LAN_CONFIG)) ){
-            uint32_t lan_baud = 921600;
-            uint32_t lan_packlen = 1024;
-            uint32_t lan_serconf = 0x080401;
-            uint32_t lan_tcp_mode = 0x01;
-            uint32_t lan_dhcp = 0x01;
-            uint32_t lan_timeout = 0x00;
-            uint32_t lan_port = 1885;
-            uint32_t lan_ip = transformatIP( "192.168.0.1" );
-            if( set_key_value( "lan_baud", UINT32, ( uint8_t *)&lan_baud ) &&\
-            set_key_value( "lan_packlen", UINT32, ( uint8_t *)&lan_packlen ) &&\
-            set_key_value( "lan_serconf", UINT32, ( uint8_t *)&lan_serconf ) &&\
-            set_key_value( "lan_tcp_mode", UINT32, ( uint8_t *)&lan_tcp_mode ) &&\
-            set_key_value( "lan_dhcp", UINT32, ( uint8_t *)&lan_dhcp ) &&\
-            set_key_value( "lan_timeout", UINT32, ( uint8_t *)&lan_timeout ) &&\
-            set_key_value( "lan_port", UINT32, ( uint8_t *)&lan_port ) &&\
-            set_key_value( "lan_ip", UINT32, ( uint8_t *)&lan_ip ) ){
-                LAN_INFO( "Init default LAN flash para successful\r\n" );
+    uint32_t lan_ip = transformatIP( "39.108.231.83" );
+    if( lan_ip != 0 ){
+        set_key_value( "lan_ip", UINT32, ( uint8_t *)&lan_ip );
+        uint32_t LAN_CONFIG = 0;
+        if( !(get_key_value( "LAN_CONFIG", UINT32, (uint8_t *)(&LAN_CONFIG)) && LAN_CONFIG == __LAN_CONFIG__) ){
+            LAN_CONFIG = __LAN_CONFIG__;
+            if( set_key_value( "LAN_CONFIG", UINT32, (uint8_t *)(&LAN_CONFIG)) ){
+                uint32_t lan_baud = 921600;
+                uint32_t lan_packlen = 1024;
+                uint32_t lan_serconf = 0x080401;
+                uint32_t lan_tcp_mode = 0x01;
+                uint32_t lan_dhcp = 0x01;
+                uint32_t lan_timeout = 0x00;
+                uint32_t lan_port = 1885;
+                uint32_t lan_ip = transformatIP( "192.168.0.1" );
+                if( set_key_value( "lan_baud", UINT32, ( uint8_t *)&lan_baud ) &&\
+                set_key_value( "lan_packlen", UINT32, ( uint8_t *)&lan_packlen ) &&\
+                set_key_value( "lan_serconf", UINT32, ( uint8_t *)&lan_serconf ) &&\
+                set_key_value( "lan_tcp_mode", UINT32, ( uint8_t *)&lan_tcp_mode ) &&\
+                set_key_value( "lan_dhcp", UINT32, ( uint8_t *)&lan_dhcp ) &&\
+                set_key_value( "lan_timeout", UINT32, ( uint8_t *)&lan_timeout ) &&\
+                set_key_value( "lan_port", UINT32, ( uint8_t *)&lan_port ) &&\
+                set_key_value( "lan_ip", UINT32, ( uint8_t *)&lan_ip ) ){
+                    LAN_INFO( "Init default LAN flash para successful\r\n" );
+                }else{
+                    while( true ){
+                        LAN_INFO( "Init default LAN flash para error\r\n" );
+                        osDelay( 1000 );
+                    }
+                }
             }else{
                 while( true ){
-                    LAN_INFO( "Init default LAN flash para error\r\n" );
+                    LAN_INFO( "Setting the LAN flag error\r\n" );
                     osDelay( 1000 );
                 }
             }
-        }else{
-            while( true ){
-                LAN_INFO( "Setting the LAN flag error\r\n" );
-                osDelay( 1000 );
+        }
+        
+        uint8_t lan_flash_parameter[ 21 ] = { 0 };
+        uint8_t lan_real_parameter[ 21 ] = { 0 };
+
+        RECHECK:
+        GetLanFlashParameter( lan_flash_parameter );
+        GetLanRealParameter( lan_real_parameter );
+        
+        if( memcmp( lan_flash_parameter, lan_real_parameter, 21 ) != 0x00 ){
+            if( !SetLanParameter( lan_flash_parameter ) ){
+                LAN_INFO( "LAN SET PARAMETER ERROR\r\n" );
             }
+            osDelay( 1000 );
+            goto RECHECK;
         }
-    }
-    
-    uint8_t lan_flash_parameter[ 21 ] = { 0 };
-    uint8_t lan_real_parameter[ 21 ] = { 0 };
+        
+        LAN_INFO( "The configuration parameter is consistent with the default parameter\r\n" );
 
-    RECHECK:
-    GetLanFlashParameter( lan_flash_parameter );
-    GetLanRealParameter( lan_real_parameter );
-    
-    if( memcmp( lan_flash_parameter, lan_real_parameter, 21 ) != 0x00 ){
-        if( !SetLanParameter( lan_flash_parameter ) ){
-            LAN_INFO( "LAN SET PARAMETER ERROR\r\n" );
-        }
-        osDelay( 1000 );
-        goto RECHECK;
+        return true;
+    }else{
+        LAN_INFO( "There is a problem with the server address.\r\n" );
+        while(true);
     }
-    
-    LAN_INFO( "The configuration parameter is consistent with the default parameter\r\n" );
-
-    return true;
 }
 
 void LAN_EXTI_Callback( void ){
