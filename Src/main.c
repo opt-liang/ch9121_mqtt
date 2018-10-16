@@ -121,7 +121,7 @@ int main(void)
   /* Initialize interrupts */
   MX_NVIC_Init();
   /* USER CODE BEGIN 2 */
-  init_key_value( ADDRESS_MAPPING(110), ADDRESS_MAPPING(112), ADDRESS_MAPPING(114) );
+  init_key_value( (110), (112), (114) );
   extern void InitPeripherals( void );
   InitPeripherals();
   /* USER CODE END 2 */
